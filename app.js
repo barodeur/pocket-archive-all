@@ -33,7 +33,7 @@ app.get('/auth/pocket/callback', function *(next) {
   var results = yield pocketClient.archiveAll({accessToken: accessToken, itemIds: itemIds});
   var numberOfArchivedItems = _.compact(results).length;
   var message = numberOfArchivedItems + ' items have been archived. You\'ll be redirected to pocket in a few seconds...';
-  this.body = '<pre>' + message + '</pre><script type="text/javascript">setTimeout(function() { window.location = "https://getpocket.com/"; }, 3000);</script>'
+  this.body = '<pre>' + message + '</pre><script type="text/javascript">setTimeout(function() { window.location = "https://getpocket.com/"; }, 5000);</script>'
 });
 
 var port = process.env.PORT || 3000;
