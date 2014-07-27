@@ -2,4 +2,4 @@
 
 npm install
 source .env
-nodemon app.js
+nodemon --harmony app.js

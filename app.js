@@ -1,41 +1,38 @@
 var PocketClient = require('./lib/pocket_client').PocketClient;
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
+var koa = require('koa');
+var router = require('koa-router');
+var app = koa();
+var koaBody = require('koa-body')();
 var crypto = require('crypto');
 var _ = require('lodash');
+var thunkify = require('thunkify-wrap');
+
+app.use(router(app));
+app.use(koaBody);
 
 var pocketConsumerKey = process.env.POCKET_CONSUMER_KEY;
 var pocketClient = new PocketClient(pocketConsumerKey);
 
-app.get('/', function(req, res) {
-  res.redirect('/auth/pocket');
+app.get('/', function *(next) {
+  this.redirect('/auth/pocket');
 });
 
-app.get('/auth/pocket', function(req, res, next) {
-  crypto.randomBytes(32, function(err, buf) {
-    var state = buf.toString('hex');
-    pocketClient.authRequest({state: state}, function(err, code) {
-      res.redirect('https://getpocket.com/auth/authorize?request_token='+ code +'&redirect_uri=' + process.env.HOST + '/auth/pocket/callback?state=' + state);
-    });
-  });
+app.get('/auth/pocket', function *(next) {
+  var buf = yield thunkify(crypto.randomBytes)(32);
+  var state = buf.toString('hex');
+  var code = yield pocketClient.authRequest({state: state});
+  this.redirect('https://getpocket.com/auth/authorize?request_token='+ code +'&redirect_uri=' + process.env.HOST + '/auth/pocket/callback?state=' + state);
 });
 
-app.get('/auth/pocket/callback', function(req, res) {
-  var state = req.query.state;
-
-  pocketClient.authorize({state: state}, function(err, accessToken) {
-    pocketClient.get({accessToken: accessToken}, function(err, items) {
-      var itemIds = Object.keys(items);
-
-      pocketClient.archiveAll({accessToken: accessToken, itemIds: itemIds}, function(err, results) {
-        if(err) return res.send(err.message);
-
-        var numberOfArchivedItems = _.compact(results).length;
-        res.send(numberOfArchivedItems + ' items have been archived');
-      })
-    });
-  });
+app.get('/auth/pocket/callback', function *(next) {
+  var state = this.query.state;
+  var accessToken = yield pocketClient.authorize({state: state});
+  console.log(accessToken);
+  var items = yield pocketClient.get({accessToken: accessToken});
+  var itemIds = Object.keys(items);
+  var results = yield pocketClient.archiveAll({accessToken: accessToken, itemIds: itemIds});
+  var numberOfArchivedItems = _.compact(results).length;
+  this.body = numberOfArchivedItems + ' items have been archived';
 });
 
 var port = process.env.PORT || 3000;

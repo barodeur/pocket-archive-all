@@ -6,12 +6,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines": {
+    "node": "0.11.x"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.5.1",
-    "express": "^4.7.0",
+    "co-request": "^0.2.0",
+    "koa": "^0.8.1",
+    "koa-body": "^0.2.0",
+    "koa-router": "^3.2.3",
     "lodash": "^2.4.1",
-    "request": "^2.39.0"
+    "thunkify-wrap": "^1.0.1"
   }
 }
