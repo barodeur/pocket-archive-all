@@ -14,10 +14,10 @@ var pocketConsumerKey = process.env.POCKET_CONSUMER_KEY;
 var pocketClient = new PocketClient(pocketConsumerKey);
 
 app.get('/', function *(next) {
-  this.redirect('/auth/pocket');
+  this.body = '<form method=POST action="/auth/pocket"><button>Archive all</button></form>';
 });
 
-app.get('/auth/pocket', function *(next) {
+app.post('/auth/pocket', function *(next) {
   var buf = yield thunkify(crypto.randomBytes)(32);
   var state = buf.toString('hex');
   var code = yield pocketClient.authRequest({state: state});
