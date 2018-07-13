@@ -21,7 +21,7 @@ app.post('/auth/pocket', function *(next) {
   var buf = yield thunkify(crypto.randomBytes)(32);
   var state = buf.toString('hex');
   var code = yield pocketClient.authRequest({state: state});
-  this.redirect('https://getpocket.com/auth/authorize?request_token='+ code +'&redirect_uri=' + process.env.HOST + '/auth/pocket/callback?state=' + state);
+  this.redirect('https://getpocket.com/auth/authorize?request_token='+ code +'&redirect_uri=http://localhost:3000/auth/pocket/callback?state=' + state);
 });
 
 app.get('/auth/pocket/callback', function *(next) {
@@ -36,6 +36,5 @@ app.get('/auth/pocket/callback', function *(next) {
   this.body = '<pre>' + message + '</pre><script type="text/javascript">setTimeout(function() { window.location = "https://getpocket.com/"; }, 5000);</script>'
 });
 
-var port = process.env.PORT || 3000;
-app.listen(port);
-console.log('listening on port %d', port);
+app.listen(3000);
+console.log('listening on port %d', 3000);
